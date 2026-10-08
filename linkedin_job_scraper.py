@@ -11,7 +11,7 @@ CHAT_ID = os.environ.get('CHAT_ID', '')
 
 # Sessiz saatler (Telegram bildirimi gönderilmez, ama bot çalışır)
 SILENT_HOURS_START = 0  # Gece 12 (00:00)
-SILENT_HOURS_END = 9    # Sabah 9 (09:00)
+SILENT_HOURS_END = 0   # Sabah 9 (09:00)
 
 # LinkedIn arama URL'leri (virgülle ayrılmış)
 SEARCH_URLS_STR = os.environ.get('LINKEDIN_SEARCH_URLS', 
