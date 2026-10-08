@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Job Bot Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #0a66c2;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .stats-section {
+            margin-bottom: 30px;
+        }
+        
+        .stats-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 10px;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 600;
+            color: #0a66c2;
+        }
+        
+        .stat-card .detail {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        .day-section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .day-header h2 {
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .day-header .count {
+            background: #0a66c2;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+        
+        .job-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 18px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+        
+        .job-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-color: #0a66c2;
+        }
+        
+        .job-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0a66c2;
+            margin-bottom: 8px;
+        }
+        
+        .job-company {
+            color: #666;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .job-location {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        
+        .job-time {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .job-link {
+            display: inline-block;
+            background: #0a66c2;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        
+        .job-link:hover {
+            background: #004182;
+        }
+        
+        .no-jobs {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>LinkedIn Job Bot Dashboard</h1>
+            <p class="subtitle">Otomatik is ilani takip sistemi</p>
+        </header>
+        
+        <div class="stats-section">
+            <div class="stats-title">Bugun</div>
+            <div class="stats" id="todayStats">
+                <div class="stat-card">
+                    <h3>Taranan</h3>
+                    <div class="number" id="todayChecked">-</div>
+                    <div class="detail">Kontrol edilen ilan</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Yeni</h3>
+                    <div class="number" id="todayNew">-</div>
+                    <div class="detail">Bulunan yeni ilan</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Oran</h3>
+                    <div class="number" id="todayRate">-</div>
+                    <div class="detail">Yeni / Taranan</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Son Calisma</h3>
+                    <div class="number" id="lastRun">-</div>
+                    <div class="detail">Tarih ve saat</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-section">
+            <div class="stats-title">Toplam (Overall)</div>
+            <div class="stats" id="overallStats">
+                <div class="stat-card">
+                    <h3>Toplam Taranan</h3>
+                    <div class="number" id="totalChecked">-</div>
+                    <div class="detail">Tum zamanlar</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Toplam Yeni</h3>
+                    <div class="number" id="totalNew">-</div>
+                    <div class="detail">Tum zamanlar</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Genel Oran</h3>
+                    <div class="number" id="overallRate">-</div>
+                    <div class="detail">Yeni / Taranan</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Calisma Sayisi</h3>
+                    <div class="number" id="totalRuns">-</div>
+                    <div class="detail">Toplam calistirma</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="jobsContainer">
+            <div class="loading">Veriler yukleniyor...</div>
+        </div>
+    </div>
+    
+    <script>
+        async function loadStats() {
+            try {
+                const response = await fetch('stats.json');
+                const stats = await response.json();
+                
+                // Overall stats
+                document.getElementById('totalChecked').textContent = stats.total_checked;
+                document.getElementById('totalNew').textContent = stats.total_new;
+                document.getElementById('totalRuns').textContent = stats.runs.length;
+                
+                const overallRate = stats.total_checked > 0 
+                    ? ((stats.total_new / stats.total_checked) * 100).toFixed(1) 
+                    : 0;
+                document.getElementById('overallRate').textContent = overallRate + '%';
+                
+                // Today stats
+                const today = new Date().toISOString().split('T')[0];
+                const todayRuns = stats.runs.filter(run => run.timestamp.startsWith(today));
+                
+                const todayChecked = todayRuns.reduce((sum, run) => sum + run.checked, 0);
+                const todayNew = todayRuns.reduce((sum, run) => sum + run.new, 0);
+                
+                document.getElementById('todayChecked').textContent = todayChecked;
+                document.getElementById('todayNew').textContent = todayNew;
+                
+                const todayRate = todayChecked > 0 
+                    ? ((todayNew / todayChecked) * 100).toFixed(1) 
+                    : 0;
+                document.getElementById('todayRate').textContent = todayRate + '%';
+                
+                // Last run
+                if (stats.last_run) {
+                    const lastRun = new Date(stats.last_run);
+                    document.getElementById('lastRun').textContent = 
+                        lastRun.toLocaleString('tr-TR', { 
+                            day: '2-digit', 
+                            month: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                }
+                
+            } catch (error) {
+                console.error('Stats yukleme hatasi:', error);
+            }
+        }
+        
+        async function loadJobs() {
+            try {
+                const response = await fetch('jobs_history/');
+                const text = await response.text();
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const links = Array.from(doc.querySelectorAll('a'))
+                    .map(a => a.href)
+                    .filter(href => href.endsWith('.json'))
+                    .map(href => href.split('/').pop());
+                
+                if (links.length === 0) {
+                    document.getElementById('jobsContainer').innerHTML = 
+                        '<div class="no-jobs">Henuz kayitli ilan yok</div>';
+                    return;
+                }
+                
+                // Tarihe göre sırala (eskiden yeniye - en yeni en üstte)
+                links.sort();
+                
+                const container = document.getElementById('jobsContainer');
+                container.innerHTML = '';
+                
+                for (const file of links) {
+                    const date = file.replace('.json', '');
+                    const response = await fetch(`jobs_history/${file}`);
+                    const jobs = await response.json();
+                    
+                    const section = document.createElement('div');
+                    section.className = 'day-section';
+                    
+                    const header = document.createElement('div');
+                    header.className = 'day-header';
+                    header.innerHTML = `
+                        <h2>${formatDate(date)}</h2>
+                        <span class="count">${jobs.length} ilan</span>
+                    `;
+                    section.appendChild(header);
+                    
+                    jobs.forEach(job => {
+                        const card = document.createElement('div');
+                        card.className = 'job-card';
+                        card.innerHTML = `
+                            <div class="job-title">${escapeHtml(job.title)}</div>
+                            <div class="job-company">${escapeHtml(job.company)}</div>
+                            <div class="job-location">${escapeHtml(job.location)}</div>
+                            <div class="job-time">${job.found_at || date}</div>
+                            <a href="${job.link}" target="_blank" class="job-link">Ilana Git</a>
+                        `;
+                        section.appendChild(card);
+                    });
+                    
+                    container.appendChild(section);
+                }
+                
+            } catch (error) {
+                console.error('Jobs yukleme hatasi:', error);
+                document.getElementById('jobsContainer').innerHTML = 
+                    '<div class="no-jobs">Veriler yuklenirken hata olustu</div>';
+            }
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            if (dateStr === today.toISOString().split('T')[0]) {
+                return 'Bugun';
+            } else if (dateStr === yesterday.toISOString().split('T')[0]) {
+                return 'Dun';
+            } else {
+                return date.toLocaleDateString('tr-TR', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        loadStats();
+        loadJobs();
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+name: LinkedIn Job Checker
+
+on:
+  schedule:
+    # Her 90 dakikada bir çalışır (1.5 saat)
+    - cron: '0 */2 * * *'
+  
+  # Manuel çalıştırma için
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-jobs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: Run job scraper
+      env:
+        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+        CHAT_ID: ${{ secrets.CHAT_ID }}
+        LINKEDIN_SEARCH_URLS: ${{ secrets.LINKEDIN_SEARCH_URLS }}
+        FILTER_KEYWORDS: ${{ secrets.FILTER_KEYWORDS }}
+      run: |
+        python linkedin_job_scraper.py
+    
+    - name: Commit seen jobs
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add seen_jobs.json stats.json jobs_history/
+        git diff --quiet && git diff --staged --quiet || git commit -m "Update job data [skip ci]"
+        git push
